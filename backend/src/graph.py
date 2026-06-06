@@ -112,7 +112,7 @@ Trip details:
 Task: Extract or estimate a realistic return flight cost in INR for {travelers} traveler(s).
 Respond ONLY in this format (no extra text):
 SUMMARY: <airline name and route, e.g. "IndiGo DEL→NRT, return">
-COST: <number only, total INR for all travelers>
+COST: <plain number only, e.g. 32000, no symbols or words>
 """
 
     # FIX 6: "response" variable is now safe — urllib import removed
@@ -126,11 +126,11 @@ COST: <number only, total INR for all travelers>
             summary = line.replace("SUMMARY:", "").strip()
         elif line.startswith("COST:"):
             try:
-                raw_cost = line.replace("COST:", "").strip().replace(",", "").replace("₹", "")
-                match = re.search(r'\d+(?:\.\d+)?', raw_cost)
+                import re
+                raw = line.replace("COST:", "").strip().replace(",", "").replace("₹", "")
+                match = re.search(r'\d+(?:\.\d+)?', raw)
                 cost = float(match.group()) if match else 0.0
-
-            except ValueError:
+            except Exception:
                 cost = 0.0
 
     print(f"[flights] ✓ {summary} — ₹{cost:,.0f}")
@@ -177,7 +177,7 @@ Trip details:
 Task: Estimate total accommodation cost in INR for {duration} nights for {travelers} traveler(s).
 Respond ONLY in this format:
 SUMMARY: <hotel name and type, e.g. "Shinjuku Granbell Hotel, ₹4,500/night">
-COST: <total INR for all nights>
+COST: <plain number only, e.g. 24000, no symbols or words>
 """
 
     llm_response = llm.invoke([HumanMessage(content=prompt)])
@@ -235,7 +235,7 @@ Trip details:
 Task: List 3-5 activities and estimate total cost in INR for the trip.
 Respond ONLY in this format:
 SUMMARY: <comma-separated list of activities>
-COST: <total INR>
+COST: <plain number only, e.g. 8000, no symbols or words>
 """
 
     llm_response = llm.invoke([HumanMessage(content=prompt)])
@@ -248,9 +248,13 @@ COST: <total INR>
             summary = line.replace("SUMMARY:", "").strip()
         elif line.startswith("COST:"):
             try:
-                cost = float(line.replace("COST:", "").strip().replace(",", ""))
-            except ValueError:
+                import re
+                raw = line.replace("COST:", "").strip().replace(",", "").replace("₹", "")
+                match = re.search(r'\d+(?:\.\d+)?', raw)
+                cost = float(match.group()) if match else 0.0
+            except Exception:
                 cost = 0.0
+
 
     print(f"[activities] ✓ {summary} — ₹{cost:,.0f}")
 
