@@ -1,0 +1,27 @@
+# backend/requirements.txt
+
+# ── Web framework ─────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+python-dotenv
+pydantic
+
+# ── LangGraph + LangChain ─────────────────────────────────────
+langgraph
+langchain
+langchain-core
+langchain-google-genai
+
+# FIX 1: Added langchain-community — required for TavilySearchResults
+# used in graph.py: from langchain_community.tools.tavily_search import TavilySearchResults
+langchain-community
+
+# ── Search ────────────────────────────────────────────────────
+tavily-python
+
+# FIX 2: Added aiosqlite — required by LangGraph's SqliteSaver
+# (langgraph.checkpoint.sqlite uses async SQLite internally)
+aiosqlite
+
+# FIX 3: Removed "langgraph_checkpoint_sqlite" — fake package that doesn't exist
+# SqliteSaver is built into langgraph itself (langgraph.checkpoint.sqlite)
